@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">	<!-- xml 파일의 유효성 체크를 위한 부분 -->
+<mapper namespace="admin">
+	
+	<!-- 상품 정보 추가 -->
+	<insert id="insertSelf" parameterType="selfProduct">
+		INSERT INTO SIDE(SIDE_NUM
+				       , CATEGORY_NUM
+				       , SIDE_NAME
+				       , PRICE
+				       , STATUS
+				       , COUNT)
+		VALUES(SEQ_SIDE.NEXTVAL
+		     , #{categoryNum}
+		     , #{sideName}
+		     , #{price}
+		     , DEFAULT
+		     , DEFAULT)
+	</insert>
+	
+	<!-- 상품 이미지 테이블 추가 -->
+	<insert id="insertSelfAtt" parameterType="selfAttachment">
+		INSERT INTO SIDE_ATTACHMENT(ATT_NUM
+								  , SIDE_NUM
+								  , ORIGIN_NAME
+								  , CHANGE_NAME
+								  , FILE_PATH
+								  , STATUS)
+		VALUES(SEQ_SATT.NEXTVAL
+		     , SEQ_SATT.CURRVAL
+			 , #{originName}
+			 , #{changeName}
+			 , 'resources/selfUpfiles/'
+			 , DEFAULT)
+		
+	</insert>
+	
+	<!-- 상품 조회 -->
+	<select id="selectPList" resultType="selfProduct">
+		SELECT SIDE_NUM, CATEGORY_NUM, SIDE_NAME, PRICE, STATUS, COUNT
+		FROM SIDE
+		ORDER BY PRICE*COUNT DESC
+	</select>
+	
+	
+	<!-- 활성화 -->
+	<update id="activation" parameterType="int">
+		UPDATE SIDE
+		SET STATUS = 'Y'
+		WHERE SIDE_NUM = #{ sideNum }
+	</update>
+	<!-- 비활성화 -->
+	<update id="unactivation" parameterType="int">
+		UPDATE SIDE
+		SET STATUS = 'N'
+		WHERE SIDE_NUM = #{ sideNum }
+	</update>
+	
+	<!-- 상품 정보 수정 -->
+	<update id="updateSelf" parameterType="selfProduct">
+		UPDATE SIDE
+		SET CATEGORY_NUM = #{categoryNum},
+		    SIDE_NAME = #{sideName},
+		    PRICE = #{price}
+		WHERE SIDE_NUM = #{sideNum}
+	</update>
+	<!-- 상품 이미지 가져오기 : 상품정보 테이블에서 상품첨부파일 테이블 조인해서 상품정보 + titleImg 가져오면됨 -->
+	<select id="selectOriginImg" resultType="selfProduct" parameterType="int">
+		SELECT S.SIDE_NUM, CATEGORY_NUM, SIDE_NAME, PRICE, S.STATUS, COUNT, FILE_PATH || CHANGE_NAME TITLEIMG
+		FROM SIDE S
+		JOIN SIDE_ATTACHMENT ON (ATT_NUM = S.SIDE_NUM)
+		WHERE S.SIDE_NUM = #{sideNum}
+	</select>
+	
+	
+	<!-- 상품 정보 삭제 -->
+	<delete id="deleteSelf" parameterType="int">
+		DELETE FROM SIDE
+		WHERE SIDE_NUM = #{ sideNum }
+	</delete>
+	<delete id="deleteSelfAtt" parameterType="int">
+		DELETE FROM SIDE_ATTACHMENT
+		WHERE SIDE_NUM = #{ sideNum }
+	</delete>
+	
+	
+	<!-- ==================================================================== -->
+	
+	<!-- 패키지 도시락 조회 메소드 -->
+	<select id="selectDList" resultType="packageProduct">
+		SELECT PACKAGE_NUM
+		     , PACKAGE_NUM2
+		     , PACKAGE_NAME
+		     , PACKAGE_PRICE
+		     , STATUS
+		     , COUNT
+		FROM PACKAGEPRODUCT
+		ORDER BY PACKAGE_PRICE*COUNT DESC
+	</select>
+	
+	<!-- 패키지 정보 추가 -->
+	<insert id="insertPack" parameterType="packageProduct">
+		INSERT INTO PACKAGEPRODUCT(PACKAGE_NUM
+		                         , PACKAGE_NUM2
+		                         , PACKAGE_NAME
+		                         , PACKAGE_PRICE
+		                         , STATUS)
+		VALUES(SEQ_PACK.NEXTVAL
+		     , #{packageNum2}
+		     , #{packageName}
+		     , #{packagePrice}
+		     , DEFAULT)
+	</insert>
+	
+	<insert id="insertPackAtt" parameterType="packageAttachment">
+		INSERT INTO PACKAGE_ATTACHMENT(IMG_NUM
+		                             , PACKAGE_NUM
+		                             , ORIGIN_NAME
+		                             , CHANGE_NAME
+		                             , FILE_PATH
+		                             , STATUS)
+		VALUES(SEQ_PATT.NEXTVAL
+		     , SEQ_PATT.CURRVAL
+		     , #{originName}
+		     , #{changeName}
+		     , 'resources/packUpfiles/'
+		     , DEFAULT)
+	</insert>
+	
+	<!-- 패키지 도시락 수정 메소드 -->
+	<update id="updatePack" parameterType="packageProduct">
+		UPDATE PACKAGEPRODUCT
+		SET PACKAGE_NUM2 = #{packageNum2},
+		    PACKAGE_NAME = #{packageName},
+		    PACKAGE_PRICE = #{packagePrice}
+		WHERE PACKAGE_NUM = #{packageNum}
+	</update>
+	
+	<!-- 패키지 도시락 삭제 메소드 -->
+	<delete id="deletePack" parameterType="int">
+		DELETE FROM PACKAGEPRODUCT
+		WHERE PACKAGE_NUM = #{ packageNum }
+	</delete>
+	<delete id="deletePackAtt" parameterType="int">
+		DELETE FROM PACKAGE_ATTACHMENT
+		WHERE IMG_NUM = #{ packageNum }
+	</delete>
+	
+	<!-- 패키지 이미지 가져오기 메소드 --> 
+	<select id="selectPackImg" resultType="packageProduct" parameterType="int">
+		SELECT P.PACKAGE_NUM, PACKAGE_NUM2, PACKAGE_NAME, PACKAGE_PRICE, P.STATUS, FILE_PATH || CHANGE_NAME TITLEIMG
+		FROM PACKAGEPRODUCT P
+		JOIN PACKAGE_ATTACHMENT A ON (A.PACKAGE_NUM = P.PACKAGE_NUM)
+		WHERE P.PACKAGE_NUM = #{packageNum}
+	</select>
+	
+	<!-- 활성화 -->
+	<update id="activationPack" parameterType="int">
+		UPDATE PACKAGEPRODUCT
+		SET STATUS = 'Y'
+		WHERE PACKAGE_NUM = #{ packageNum }
+	</update>
+	<!-- 비활성화 -->
+	<update id="unactivationPack" parameterType="int">
+		UPDATE PACKAGEPRODUCT
+		SET STATUS = 'N'
+		WHERE PACKAGE_NUM = #{ packageNum }
+	</update>
+	
+	
+	
+	<!-- =========================================================== -->
+	<!-- 관리자 메인페이지 차트 에 사용되는 메소드 -->
+	<select id="selectAPList" resultType="selfProduct">
+		SELECT SIDE_NAME, PRICE, COUNT
+		FROM SIDE
+		WHERE STATUS = 'Y'
+		ORDER BY PRICE*COUNT DESC
+	</select>
+	
+</mapper>

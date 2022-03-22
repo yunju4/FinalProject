@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> <!-- xml 파일의 유효성 체크를 위한 부분 -->
+<mapper namespace="review">
+	
+
+	<select id="reviewList" resultType="review">
+		SELECT *
+		FROM REVIEW
+		ORDER BY NOTICE_NO DESC
+	</select>
+	
+	<insert id="insertList" parameterType="map">
+		INSERT INTO REVIEW(
+						  NOTICE_NO,
+						  ORDER_NUM,
+						  NOTICE_CONTENT,
+						  CREATE_DATE,
+						  STATUS,
+						  MEMBER_NAME,
+						  POINT)
+		VALUES(
+			   SEQ_REVI.NEXTVAL,
+			   1,
+			   #{content},
+			   SYSDATE,
+			   DEFAULT,
+			   #{memberName},
+			   #{point})
+	</insert>
+	
+	<select id="reviewtest" resultType="review" parameterType="int">
+		SELECT *
+		  FROM REVIEW R
+		  JOIN ORDER_LIST O ON (R.ORDER_NUM = O.ORDER_NUM)
+		  JOIN BASKET B ON (O.BASKET_NUM = B.BASKET_NUM)
+		 WHERE O.PARCEL = 3
+		   AND B.MEMBER_NUM = #{ memberNum }
+	</select>
+</mapper>
+
+
+
+
+
+
+
+

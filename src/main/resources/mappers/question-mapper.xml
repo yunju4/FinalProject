@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> <!-- xml 파일의 유효성 체크를 위한 부분 -->
+<mapper namespace="question">
+	
+
+	<select id="questionList" resultType="question" parameterType="map">
+		SELECT *
+		FROM (
+    		SELECT ROWNUM RNUM, A.*
+    		FROM (
+        		SELECT *
+        		FROM QUESTION
+        		JOIN MEMBER USING(MEMBER_NUM)
+        		ORDER BY Q_NUM DESC) A)
+		WHERE RNUM BETWEEN #{startRow} AND #{endRow}
+	</select>
+	
+	<select id="questionListCount" resultType="int">
+		SELECT COUNT(*) COUNT
+	    FROM QUESTION
+	</select>
+	
+	
+	<select id="selectoneSearchListCount" resultType="int" parameterType="map">
+		SELECT A.* 
+		FROM (SELECT COUNT(*) COUNT
+	   		  FROM QUESTION
+	    	  JOIN MEMBER USING(MEMBER_NUM)
+	    	  WHERE ${type} LIKE '%' || #{keyword} || '%') A
+	</select>
+	
+	<select id="onesearch" resultType="question" parameterType="map">
+		
+		SELECT *
+		FROM (
+    		SELECT ROWNUM RNUM, A.*
+    		FROM (
+        		SELECT *
+        		FROM QUESTION
+        		JOIN MEMBER USING(MEMBER_NUM)
+        		WHERE ${type} LIKE '%' || #{keyword} || '%'
+        		ORDER BY Q_NUM DESC) A)
+		WHERE RNUM BETWEEN 1 AND 10
+        		
+		
+	</select>
+	
+	<select id="onedetail" resultType="question" parameterType="question">
+		SELECT *
+		FROM QUESTION
+		WHERE Q_NUM = #{noticeNo}
+	</select>
+	
+	<insert id="insertCoupon" parameterType="map">
+		INSERT INTO COUPON(
+						  COUPON,
+						  MEMBER_NUM,
+						  DISCOUNT,
+						  STATUS,
+						  COUPON_NAME)
+		VALUES(
+			   SEQ_COUP.NEXTVAL,
+			   #{memberNum},
+			   #{discount},
+			   DEFAULT,
+			   #{couponName})
+	</insert>
+	
+	<insert id="write" parameterType="question">
+		INSERT INTO QUESTION(
+						  Q_NUM,
+						  MEMBER_NUM,
+						  CATEGORY_NUM,
+						  STATUS,
+						  Q_TITLE,
+						  Q_CONTENT,
+						  Q_DATE,
+						  A_CONTENT,
+						  A_DATE,
+						  COUNT)
+		VALUES(
+			   SEQ_QUES.NEXTVAL,
+			   #{memberId},
+			   #{categoryNum},
+			   DEFAULT,
+			   #{QTitle},
+			   #{QContent},
+			   SYSDATE,
+			   null,
+			   SYSDATE,
+			   DEFAULT)
+	</insert>
+	
+	<select id="CouponList" resultType="int" parameterType="map">
+		SELECT COUNT(*) COUNT
+		FROM COUPON
+		WHERE MEMBER_NUM = #{memberNum}
+		AND COUPON_NAME=#{couponName}
+	</select>
+	
+	<update id="oneviewCount" parameterType="int">
+		UPDATE QUESTION
+		   SET COUNT = COUNT + 1
+		   WHERE Q_NUM = #{noticeNo}
+	</update>
+</mapper>
+
+
+
+
+
+
+
+

@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> <!-- xml 파일의 유효성 체크를 위한 부분 -->
+<mapper namespace="selfdo">
+	
+	<!-- 밥 리스트 뽑기 (라디오)-->
+	<select id="selfdoList1" resultType="sidedo">
+		SELECT FILE_PATH || CHANGE_NAME TITLEIMG, S.SIDE_NAME, S.PRICE, S.SIDE_NUM, S.CATEGORY_NUM
+		FROM SIDE S
+		JOIN CATEGORY C ON (S.CATEGORY_NUM = C.CATEGORY_NUM)
+		JOIN SIDE_ATTACHMENT SA ON (S.SIDE_NUM = SA.SIDE_NUM)
+		WHERE S.STATUS = 'Y'
+		  AND S.CATEGORY_NUM = '2'
+	</select>
+	
+	<!-- 국 리스트 뽑기 (라디오)-->
+	<select id="selfdoList2" resultType="sidedo">
+		SELECT FILE_PATH || CHANGE_NAME TITLEIMG, S.SIDE_NAME, S.PRICE, S.SIDE_NUM, S.CATEGORY_NUM
+		FROM SIDE S
+		JOIN CATEGORY C ON (S.CATEGORY_NUM = C.CATEGORY_NUM)
+		JOIN SIDE_ATTACHMENT SA ON (S.SIDE_NUM = SA.SIDE_NUM)
+		WHERE S.STATUS = 'Y'
+		  AND S.CATEGORY_NUM = '3'
+	</select>
+	
+	<!-- 반찬 리스트 뽑기 (라디오)-->
+	<select id="selfdoList3" resultType="sidedo">
+		SELECT FILE_PATH || CHANGE_NAME TITLEIMG, S.SIDE_NAME, S.PRICE, S.SIDE_NUM, S.CATEGORY_NUM
+		FROM SIDE S
+		JOIN CATEGORY C ON (S.CATEGORY_NUM = C.CATEGORY_NUM)
+		JOIN SIDE_ATTACHMENT SA ON (S.SIDE_NUM = SA.SIDE_NUM)
+		WHERE S.STATUS = 'Y'
+		  AND S.CATEGORY_NUM = '1'
+	</select>
+	
+	<!-- 밥 가격 뽑기  -->
+	<select id="selectprice1" parameterType="int" resultType="sidedo">
+		SELECT PRICE
+		FROM SIDE
+		WHERE SIDE_NUM = #{ sideNum1 }
+	</select>
+	
+	<!-- 국 가격 뽑기  -->
+	<select id="selectprice2" parameterType="int" resultType="sidedo">
+		SELECT PRICE
+		FROM SIDE
+		WHERE SIDE_NUM = #{ sideNum2 }
+	</select>
+	
+	<!-- 반찬1 가격 뽑기  -->
+	<select id="selectprice3" parameterType="int" resultType="sidedo">
+		SELECT PRICE
+		FROM SIDE
+		WHERE SIDE_NUM = #{ sideNum3 }
+	</select>
+	
+	<!-- 반찬4 가격 뽑기  -->
+	<select id="selectprice4" parameterType="int" resultType="sidedo">
+		SELECT PRICE
+		FROM SIDE
+		WHERE SIDE_NUM = #{ sideNum4 }
+	</select>
+	
+	<!-- 반찬5 가격 뽑기  -->
+	<select id="selectprice5" parameterType="int" resultType="sidedo">
+		SELECT PRICE
+		FROM SIDE
+		WHERE SIDE_NUM = #{ sideNum5 }
+	</select>
+	
+	<!-- 셀프 테이블에 insert -->
+	<insert id="insert" parameterType="selfdo">
+		INSERT INTO SELFPRODUCT
+						VALUES(
+						       SEQ_SELF.NEXTVAL,
+						       #{ memberNum },
+						       #{ rice },
+						       #{ soup },
+						       #{ side1 },
+						       #{ side2 },
+						       #{ side3 },
+						       #{ price },
+						       DEFAULT)
+	</insert>
+	
+	<!-- 밥 이미지, 이름, 가격 뽑기 -->
+	<select id="selectsidedo_com1" parameterType="int" resultType="sidedo">
+		SELECT FILE_PATH || CHANGE_NAME TITLEIMG, S.SIDE_NAME, S.PRICE
+		FROM SIDE S
+		JOIN CATEGORY C ON (S.CATEGORY_NUM = C.CATEGORY_NUM)
+		JOIN SIDE_ATTACHMENT SA ON (S.SIDE_NUM = SA.SIDE_NUM)
+		WHERE S.STATUS = 'Y'
+		  AND S.SIDE_NUM = #{ sideNum1 }
+	</select>
+	
+	<!-- 국 이미지, 이름, 가격 뽑기 -->
+	<select id="selectsidedo_com2" parameterType="int" resultType="sidedo">
+		SELECT FILE_PATH || CHANGE_NAME TITLEIMG, S.SIDE_NAME, S.PRICE
+		FROM SIDE S
+		JOIN CATEGORY C ON (S.CATEGORY_NUM = C.CATEGORY_NUM)
+		JOIN SIDE_ATTACHMENT SA ON (S.SIDE_NUM = SA.SIDE_NUM)
+		WHERE S.STATUS = 'Y'
+		  AND S.SIDE_NUM = #{ sideNum2 }
+	</select>
+	
+	<!-- 반찬1 이미지, 이름, 가격 뽑기 -->
+	<select id="selectsidedo_com3" parameterType="int" resultType="sidedo">
+		SELECT FILE_PATH || CHANGE_NAME TITLEIMG, S.SIDE_NAME, S.PRICE
+		FROM SIDE S
+		JOIN CATEGORY C ON (S.CATEGORY_NUM = C.CATEGORY_NUM)
+		JOIN SIDE_ATTACHMENT SA ON (S.SIDE_NUM = SA.SIDE_NUM)
+		WHERE S.STATUS = 'Y'
+		  AND S.SIDE_NUM = #{ sideNum3 }
+	</select>
+	
+	<!-- 반찬2 이미지, 이름, 가격 뽑기 -->
+	<select id="selectsidedo_com4" parameterType="int" resultType="sidedo">
+		SELECT FILE_PATH || CHANGE_NAME TITLEIMG, S.SIDE_NAME, S.PRICE
+		FROM SIDE S
+		JOIN CATEGORY C ON (S.CATEGORY_NUM = C.CATEGORY_NUM)
+		JOIN SIDE_ATTACHMENT SA ON (S.SIDE_NUM = SA.SIDE_NUM)
+		WHERE S.STATUS = 'Y'
+		  AND S.SIDE_NUM= #{ sideNum4 }
+	</select>
+	
+	<!-- 반찬3 이미지, 이름, 가격 뽑기 -->
+	<select id="selectsidedo_com5" parameterType="int" resultType="sidedo">
+		SELECT FILE_PATH || CHANGE_NAME TITLEIMG, S.SIDE_NAME, S.PRICE
+		FROM SIDE S
+		JOIN CATEGORY C ON (S.CATEGORY_NUM = C.CATEGORY_NUM)
+		JOIN SIDE_ATTACHMENT SA ON (S.SIDE_NUM = SA.SIDE_NUM)
+		WHERE S.STATUS = 'Y'
+		  AND S.SIDE_NUM = #{ sideNum5 }
+	</select>
+	
+	<select id="selectdNum" parameterType="selfdo" resultType="selfdo">
+		SELECT *
+		FROM SELFPRODUCT
+		WHERE MEMBER_NUM = #{ memberNum }
+		  AND RICE = #{ rice }
+		  AND SOUP = #{ soup }
+		  AND SIDE1 = #{ side1 }
+		  AND SIDE2 = #{ side2 }
+		  AND SIDE3 = #{ side3 }
+	</select>
+	
+	<delete id="selfdo.delete" parameterType="selfdo">
+		DELETE FROM SELFPRODUCT
+		WHERE MEMBER_NUM = #{ memberNum }
+		  AND D_NUM = #{ dNum }
+	</delete>
+	
+	
+	<!-- 장바구니에 담기 -->
+	<insert id="insertbasket" parameterType="basket">
+		INSERT INTO BASKET(
+				   BASKET_NUM,
+				   D_NUM,
+				   MEMBER_NUM,
+				   PRICE)
+			VALUES(
+				   SEQ_BASK.NEXTVAL,
+				   #{ dNum },
+				   #{ memberNum },
+				   #{ price })
+	</insert>
+	
+
+</mapper>

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> <!-- xml 파일의 유효성 체크를 위한 부분 -->
+<mapper namespace="notice">
+	
+	<!-- 공지사항 리스트 -->
+	<select id="notice" resultType="notice" parameterType="map">
+		SELECT *
+		FROM (
+    		SELECT ROWNUM RNUM, A.*
+    		FROM (
+        		SELECT *
+        		FROM NOTICE
+        		WHERE STATUS = 'Y'
+        		ORDER BY NOTICE_NO DESC) A)
+		WHERE RNUM BETWEEN #{startRow} AND #{endRow}
+	</select>
+	
+	<select id="selectAllListCount" resultType="int">
+		SELECT COUNT(*) COUNT
+	    FROM NOTICE
+	    WHERE STATUS = 'Y'
+	</select>
+	
+	<select id="detail" resultType="notice" parameterType="notice">
+		SELECT NOTICE_NO, MEMBER_NUM, NOTICE_TITLE, NOTICE_CONTENT, CREATE_DATE, STATUS, COUNT, C.CATEGORY_NUM, NOTICE_NAME
+		FROM NOTICE N
+		JOIN NOTICE_CATEGORY C 
+        ON N.CATEGORY_NUM = C.CATEGORY_NUM
+		WHERE NOTICE_NO = #{noticeNo}
+	</select>
+	
+	<select id="nextDetail" resultType="notice" parameterType="notice">
+		SELECT NOTICE_NO, MEMBER_NUM, NOTICE_TITLE, NOTICE_CONTENT, CREATE_DATE, STATUS, COUNT, C.CATEGORY_NUM, NOTICE_NAME
+		FROM NOTICE N
+		JOIN NOTICE_CATEGORY C 
+        ON N.CATEGORY_NUM = C.CATEGORY_NUM
+		WHERE NOTICE_NO = #{noticeNo}+1
+	</select>
+	
+	<select id="beforeDetail" resultType="notice" parameterType="notice">
+		SELECT NOTICE_NO, MEMBER_NUM, NOTICE_TITLE, NOTICE_CONTENT, CREATE_DATE, STATUS, COUNT, C.CATEGORY_NUM, NOTICE_NAME
+		FROM NOTICE N
+		JOIN NOTICE_CATEGORY C 
+        ON N.CATEGORY_NUM = C.CATEGORY_NUM
+		WHERE NOTICE_NO = #{noticeNo}-1
+	</select>
+	
+	<select id="search" resultType="notice" parameterType="map">
+		SELECT *
+		FROM (
+    		SELECT ROWNUM RNUM, A.*
+    		FROM (
+        		SELECT *
+        		FROM NOTICE
+        		WHERE NOTICE_TITLE LIKE '%' || #{keyword} || '%'
+        		ORDER BY NOTICE_NO DESC) A)
+		WHERE RNUM BETWEEN 1 AND 10
+		
+		
+	</select>
+	
+	
+	<select id="selectSearchListCount" resultType="int">
+		SELECT COUNT(*) COUNT
+	    FROM NOTICE
+	    WHERE NOTICE_TITLE LIKE '%' || #{keyword} || '%'
+	    AND STATUS = 'Y'
+	    ORDER BY NOTICE_NO DESC
+	</select>
+	
+	<update id="viewCount" parameterType="int">
+		UPDATE NOTICE
+		   SET COUNT = COUNT + 1
+		   WHERE NOTICE_NO = #{noticeNo}
+	</update>
+	
+	<!-- 이영훈  mapper -->
+	
+	<insert id="noticeWrite" parameterType="notice">
+	INSERT INTO NOTICE(NOTICE_NO,
+                    MEMBER_NUM,
+                    CATEGORY_NUM,
+                    NOTICE_TITLE,
+                    NOTICE_CONTENT,
+                    CREATE_DATE,
+                    STATUS,
+                    COUNT)
+        VALUES(
+        		SEQ_NOTI.NEXTVAL,
+        		#{memberNum},
+        		#{categoryNum},
+        		#{noticeTitle},
+        		#{noticeContent},
+        		SYSDATE, 
+        		DEFAULT,
+        		DEFAULT)
+     </insert>
+     
+     <!-- 공지사항리스트 조회 -->
+	<select id="noticeList" resultType="notice">
+		SELECT NOTICE_NO
+			, NOTICE_NAME
+			, NOTICE_TITLE
+			, TO_CHAR(CREATE_DATE, 'YYYY-MM-DD') AS CREATE_DATE
+			, COUNT
+		FROM NOTICE N
+		JOIN NOTICE_CATEGORY NC ON (N.CATEGORY_NUM = NC.CATEGORY_NUM)
+		  AND N.STATUS = 'Y'
+		ORDER BY NOTICE_NO DESC  
+	</select>
+     
+     <!-- 공지사항 삭제 -->
+     <update id="noticeDelete" parameterType="notice">
+     	 UPDATE NOTICE
+		   SET STATUS = 'N'
+		 WHERE NOTICE_NO = #{noticeNo}
+     </update>
+     
+    <!-- 공지사항 상세보기용 쿼리문 -->
+	<select id="selectDetailView" resultType="noticeSecond" parameterType="int">
+		SELECT CATEGORY_NUM
+			, TO_CHAR(CREATE_DATE, 'YYYY-MM-DD HH24:MI') AS CREATE_DATE
+			, NOTICE_TITLE
+			, NOTICE_CONTENT
+		FROM NOTICE
+		WHERE NOTICE_NO = #{noticeNo}
+	</select>
+	
+</mapper>
+
+
+
+
+
+
+
+
+
+

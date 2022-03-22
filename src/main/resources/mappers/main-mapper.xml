@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> <!-- xml 파일의 유효성 체크를 위한 부분 -->
+<mapper namespace="main">
+
+
+	<!-- 반찬 검색 -->
+	<select id="sideSearch" resultType="main" parameterType="string">
+		<!-- 
+		SELECT *
+		FROM SIDE
+		WHERE SIDE_NAME LIKE '%' || #{keyword} || '%' 
+		-->
+		SELECT S.SIDE_NUM, CATEGORY_NUM, SIDE_NAME, PRICE, S.STATUS, COUNT, FILE_PATH || CHANGE_NAME BESTIMG 
+		FROM SIDE S
+		JOIN SIDE_ATTACHMENT ON ( ATT_NUM = S.SIDE_NUM)
+		WHERE SIDE_NAME LIKE '%' || #{keyword} || '%' 
+	</select>
+	
+	<!--  best 반찬 추천 -->
+	<select id="sideBest" resultType="main">
+		SELECT *
+		FROM SIDE
+		ORDER BY COUNT DESC
+	</select>
+	
+	<!--  반찬 베스트 : 상품정보 테이블에서 상품정보 + 이미지 가져오기 -->
+	<select id="bestSelfImg" resultType="main" parameterType="int">
+		SELECT S.SIDE_NUM, CATEGORY_NUM, SIDE_NAME, PRICE, S.STATUS, COUNT, FILE_PATH || CHANGE_NAME BESTIMG 
+		FROM SIDE S
+		JOIN SIDE_ATTACHMENT ON ( ATT_NUM = S.SIDE_NUM)
+		WHERE CATEGORY_NUM = '1'
+		ORDER BY COUNT DESC
+	</select>
+	
+	<select id="bestRice" resultType="main" parameterType="int">
+		SELECT S.SIDE_NUM, CATEGORY_NUM, SIDE_NAME, PRICE, S.STATUS, COUNT, FILE_PATH || CHANGE_NAME BESTRICE 
+		FROM SIDE S
+		JOIN SIDE_ATTACHMENT ON ( ATT_NUM = S.SIDE_NUM)
+        WHERE CATEGORY_NUM = '2'
+		ORDER BY COUNT DESC
+	</select>
+	
+	<select id="bestSoup" resultType="main" parameterType="int">
+		SELECT S.SIDE_NUM, CATEGORY_NUM, SIDE_NAME, PRICE, S.STATUS, COUNT, FILE_PATH || CHANGE_NAME BESTSOUP 
+		FROM SIDE S
+		JOIN SIDE_ATTACHMENT ON ( ATT_NUM = S.SIDE_NUM)
+        WHERE CATEGORY_NUM = '3'
+		ORDER BY COUNT DESC
+	</select>
+	
+		<!--  반찬 베스트 : 상품정보 테이블에서 상품정보 + 이미지 가져오기 -->
+	<select id="mdPick" resultType="main" parameterType="int">
+		SELECT S.SIDE_NUM, CATEGORY_NUM, SIDE_NAME, PRICE, S.STATUS, COUNT, FILE_PATH || CHANGE_NAME BESTIMG 
+		FROM SIDE S
+		JOIN SIDE_ATTACHMENT ON ( ATT_NUM = S.SIDE_NUM)
+		ORDER BY COUNT
+	</select>
+	
+	<!--  패키지 추천 -->
+	<select id="bestPackage" resultType="packageProduct">
+        SELECT P.PACKAGE_NUM, P.PACKAGE_NUM2, PACKAGE_NAME, P.STATUS, COUNT, FILE_PATH || CHANGE_NAME BESTPACKAGEIMG
+		FROM PACKAGEPRODUCT P
+		JOIN PACKAGE_ATTACHMENT  ON ( IMG_NUM = P.PACKAGE_NUM)
+		ORDER BY COUNT DESC
+	</select>
+	
+	<!--  카토제닉 패키지 추천 -->
+	<select id="bestC" resultType="packageProduct" parameterType="int">
+        SELECT P.PACKAGE_NUM, P.PACKAGE_NUM2, PACKAGE_NAME,P.PACKAGE_PRICE, P.STATUS, COUNT, FILE_PATH || CHANGE_NAME BESTCIMG
+		FROM PACKAGEPRODUCT P
+		JOIN PACKAGE_ATTACHMENT  ON ( IMG_NUM = P.PACKAGE_NUM)
+        WHERE P.PACKAGE_NUM2 = '1'
+		ORDER BY COUNT DESC
+	</select>
+	
+		<!--  채식주의 패키지 추천 -->
+	<select id="bestF" resultType="packageProduct" parameterType="int">
+        SELECT P.PACKAGE_NUM, P.PACKAGE_NUM2, PACKAGE_NAME,P.PACKAGE_PRICE, P.STATUS, COUNT, FILE_PATH || CHANGE_NAME BESTFIMG
+		FROM PACKAGEPRODUCT P
+		JOIN PACKAGE_ATTACHMENT  ON ( IMG_NUM = P.PACKAGE_NUM)
+        WHERE P.PACKAGE_NUM2 = '2'
+		ORDER BY COUNT DESC
+	</select>
+	
+		<!--  지중해식 패키지 추천 -->
+	<select id="bestG" resultType="packageProduct" parameterType="int">
+        SELECT P.PACKAGE_NUM, P.PACKAGE_NUM2,PACKAGE_NAME,P.PACKAGE_PRICE, P.STATUS, COUNT, FILE_PATH || CHANGE_NAME BESTGIMG
+		FROM PACKAGEPRODUCT P
+		JOIN PACKAGE_ATTACHMENT  ON ( IMG_NUM = P.PACKAGE_NUM)
+        WHERE P.PACKAGE_NUM2 = '3'
+		ORDER BY COUNT DESC
+
+	</select>
+	
+		<!--  단백질 패키지 추천 -->
+	<select id="bestP" resultType="packageProduct" parameterType="int">
+        SELECT P.PACKAGE_NUM, P.PACKAGE_NUM2, P.PACKAGE_PRICE, PACKAGE_NAME, P.STATUS, COUNT, FILE_PATH || CHANGE_NAME BESTPIMG
+		FROM PACKAGEPRODUCT P
+		JOIN PACKAGE_ATTACHMENT  ON ( IMG_NUM = P.PACKAGE_NUM)
+        WHERE P.PACKAGE_NUM2 = '4'
+		ORDER BY COUNT DESC
+	</select>
+	
+	
+</mapper>
+
+
+
+
+
+
+
+
+
+

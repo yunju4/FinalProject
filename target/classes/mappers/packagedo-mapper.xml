@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> <!-- xml 파일의 유효성 체크를 위한 부분 -->
+<mapper namespace="packagedo">
+	
+	<!-- 키토제닉 식단 리스트 뽑기 & 사진 리스트 뽑기-->
+	<select id="packagedoList1" resultType="packagedo">
+		SELECT *
+		  FROM PACKAGEPRODUCT P
+		  JOIN PACKAGE_CATE PC ON (P.PACKAGE_NUM2 = PC.PACKAGE_NUM)
+		 WHERE STATUS = 'Y'
+		   AND PACKAGE_NUM2 = '1' 
+	</select>
+	
+	<select id="packagedoList2" resultType="packagedo">
+		SELECT FILE_PATH || CHANGE_NAME TITLEIMG, P.PACKAGE_NAME, P.PACKAGE_PRICE
+		  FROM PACKAGEPRODUCT P
+		  JOIN PACKAGE_CATE PC ON (P.PACKAGE_NUM2 = PC.PACKAGE_NUM)
+		  JOIN PACKAGE_ATTACHMENT PA ON (P.PACKAGE_NUM = PA.PACKAGE_NUM)
+		 WHERE P.STATUS = 'Y'
+		   AND PACKAGE_NUM2 = '1'
+	</select>
+	
+		<!-- 채식주의 식단 리스트 뽑기 & 사진 리스트 뽑기-->
+	<select id="packagedoList3" resultType="packagedo">
+		SELECT *
+		  FROM PACKAGEPRODUCT P
+		  JOIN PACKAGE_CATE PC ON (P.PACKAGE_NUM2 = PC.PACKAGE_NUM)
+		 WHERE STATUS = 'Y'
+		   AND PACKAGE_NUM2 = '2' 
+	</select>
+	
+	<select id="packagedoList4" resultType="packagedo">
+		SELECT FILE_PATH || CHANGE_NAME TITLEIMG, P.PACKAGE_NAME, P.PACKAGE_PRICE
+		  FROM PACKAGEPRODUCT P
+		  JOIN PACKAGE_CATE PC ON (P.PACKAGE_NUM2 = PC.PACKAGE_NUM)
+		  JOIN PACKAGE_ATTACHMENT PA ON (P.PACKAGE_NUM = PA.PACKAGE_NUM)
+		 WHERE P.STATUS = 'Y'
+		   AND PACKAGE_NUM2 = '2'
+	</select>
+	
+		<!-- 지중해식 식단 리스트 뽑기 & 사진 리스트 뽑기-->
+	<select id="packagedoList5" resultType="packagedo">
+		SELECT *
+		  FROM PACKAGEPRODUCT P
+		  JOIN PACKAGE_CATE PC ON (P.PACKAGE_NUM2 = PC.PACKAGE_NUM)
+		 WHERE STATUS = 'Y'
+		   AND PACKAGE_NUM2 = '3' 
+	</select>
+	
+	<select id="packagedoList6" resultType="packagedo">
+		SELECT FILE_PATH || CHANGE_NAME TITLEIMG, P.PACKAGE_NAME, P.PACKAGE_PRICE
+		  FROM PACKAGEPRODUCT P
+		  JOIN PACKAGE_CATE PC ON (P.PACKAGE_NUM2 = PC.PACKAGE_NUM)
+		  JOIN PACKAGE_ATTACHMENT PA ON (P.PACKAGE_NUM = PA.PACKAGE_NUM)
+		 WHERE P.STATUS = 'Y'
+		   AND PACKAGE_NUM2 = '3'
+	</select>
+	
+		<!-- 단백질 식단 리스트 뽑기 & 사진 리스트 뽑기-->
+	<select id="packagedoList7" resultType="packagedo">
+		SELECT *
+		  FROM PACKAGEPRODUCT P
+		  JOIN PACKAGE_CATE PC ON (P.PACKAGE_NUM2 = PC.PACKAGE_NUM)
+		 WHERE STATUS = 'Y'
+		   AND PACKAGE_NUM2 = '4' 
+	</select>
+	
+	<select id="packagedoList8" resultType="packagedo">
+		SELECT FILE_PATH || CHANGE_NAME TITLEIMG, P.PACKAGE_NAME, P.PACKAGE_PRICE
+		  FROM PACKAGEPRODUCT P
+		  JOIN PACKAGE_CATE PC ON (P.PACKAGE_NUM2 = PC.PACKAGE_NUM)
+		  JOIN PACKAGE_ATTACHMENT PA ON (P.PACKAGE_NUM = PA.PACKAGE_NUM)
+		 WHERE P.STATUS = 'Y'
+		   AND PACKAGE_NUM2 = '4'
+	</select>
+	
+	<!-- 사용자가 선택한 상품에 맞춰 정보를 packagedo에 담기 -->
+	<select id="select" parameterType="int" resultType="packagedo">
+		SELECT *
+		  FROM PACKAGEPRODUCT P
+		  JOIN PACKAGE_CATE PC ON (P.PACKAGE_NUM2 = PC.PACKAGE_NUM)
+		 WHERE STATUS = 'Y'
+		   AND P.PACKAGE_NUM = #{ packageNum }
+	</select>
+	
+	<!-- 장바구니 테이블에 insert -->
+	<insert id="insert" parameterType="basket">
+		INSERT INTO BASKET(
+						   BASKET_NUM,
+						   PACKAGE_NUM,
+						   MEMBER_NUM,
+						   PRICE)
+					VALUES(
+						   SEQ_BASK.NEXTVAL,
+						   #{ packageNum },
+						   #{ memberNum },
+						   #{ price })
+	</insert>
+	
+	
+
+</mapper>

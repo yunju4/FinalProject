@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> <!-- xml 파일의 유효성 체크를 위한 부분 -->
+<mapper namespace="mypage">
+	
+	<!-- 마이페이지 진입을 위한 SQL 구문 -->
+	<select id="memberSearchUser" resultType="member" parameterType="map">
+		SELECT	MEMBER_NUM
+			  , MEMBER_ID
+			  , MEMBER_PWD
+			  , MEMBER_NAME
+			  , PHONE
+			  , EMAIL
+			  , POST_NO
+			  , ADDRESS
+			  , DETAIL_ADDRESS
+			  , GENDER
+			  , STATUS
+			  , BIRTH
+		  FROM MEMBER
+		 WHERE MEMBER_ID = #{memberId}
+		   AND MEMBER_PWD = #{memberPwd}
+		   AND STATUS = 'Y'
+	</select>
+	
+	<!-- 회원정보 수정 쿼리문 -->
+	<update id="memberInfoEdit" parameterType="member">
+	 	UPDATE MEMBER
+	 	SET MEMBER_PWD = #{memberPwd},
+	 		PHONE = #{phone},
+	 		POST_NO = #{postNo},
+	 		ADDRESS = #{address},
+	 		DETAIL_ADDRESS = #{detailAddress},
+	 		BIRTH = #{birth}
+	 	WHERE MEMBER_NUM = #{memberNum}
+	 </update>
+	 
+	 <!-- 문의내역 조회 쿼리문 -->
+	 <select id="mypageInquiry" resultType="Question" parameterType="string">
+		SELECT ROWNUM 
+			 , Q_NUM
+			 , Q.MEMBER_NUM
+			 , Q.CATEGORY_NUM
+			 , Q.STATUS
+			 , Q_TITLE
+			 , Q_CONTENT
+			 , Q_DATE
+			 , A_CONTENT
+			 , A_DATE
+		  FROM QUESTION Q, MEMBER M
+		 WHERE Q.MEMBER_NUM = M.MEMBER_NUM
+           AND M.MEMBER_ID = #{memberId}
+      ORDER BY Q.Q_DATE DESC
+	</select>
+	
+	<!-- 주문 내역 조회 쿼리문 -->
+	<select id="mypageOrderList" resultType="MypageOderList" parameterType="map">
+		SELECT 
+			    ROWNUM AS ORDERLIST_NUM,
+			    DECODE(A.D_NUM, NULL, '패키지상품', '셀프도시락') AS BASKET_TYPE,
+			    DECODE(A.D_NUM, NULL, C.PACKAGE_NAME, 
+			    (SELECT SIDE_NAME FROM SIDE WHERE SIDE_NUM = B.RICE)  || ', ' ||
+			    (SELECT SIDE_NAME FROM SIDE WHERE SIDE_NUM = B.SOUP)  || ', ' ||
+			    (SELECT SIDE_NAME FROM SIDE WHERE SIDE_NUM = B.SIDE1) || ', ' ||
+			    (SELECT SIDE_NAME FROM SIDE WHERE SIDE_NUM = B.SIDE2) || ', ' ||
+			    (SELECT SIDE_NAME FROM SIDE WHERE SIDE_NUM = B.SIDE3) 
+			    ) AS SIDE_NAME ,
+			    A.PRICE,
+			    A.COUNT,
+			    TO_CHAR(O.ORDER_DATE,'YYYY-MM-DD') AS ORDER_DATE,
+			    O.ORDER_NUM,
+			    O.PARCEL,
+			    O.STATUS
+		   FROM ORDER_LIST O
+		  INNER JOIN BASKET A
+		     ON (O.BASKET_NUM = A.BASKET_NUM)
+	  LEFT JOIN SELFPRODUCT B
+		     ON (A.D_NUM = B.D_NUM)
+	  LEFT JOIN PACKAGEPRODUCT C
+		     ON (A.PACKAGE_NUM = C.PACKAGE_NUM)
+		  WHERE A.MEMBER_NUM = (SELECT MEMBER_NUM FROM MEMBER WHERE MEMBER_ID = #{memberId})
+		  	AND O.STATUS = #{type}
+	   ORDER BY O.ORDER_DATE DESC
+	</select>
+	
+	<!-- 주문 취소 쿼리문 -->
+	<update id="mypageOrderCancel" parameterType="int">
+	 	UPDATE ORDER_LIST
+	 	   SET STATUS = 'N'
+	 	   	 , ORDER_DATE = SYSDATE
+	 	WHERE ORDER_NUM = #{orderNum}
+	 </update>
+	 
+	 <!-- 쿠폰 사용가능 조회 쿼리문 -->
+	 <select id="mypageCouponList" resultType="Coupon" parameterType="string">
+	 	SELECT C.COUPON, C.DISCOUNT, C.STATUS, C.COUPON_NAME
+		  FROM COUPON C
+		  JOIN MEMBER M
+			ON C.MEMBER_NUM = M.MEMBER_NUM
+		 WHERE M.MEMBER_ID = #{memberId}
+		   AND C.STATUS = 'Y'
+	 </select>
+	 
+	 <!-- 쿠폰 사용완료 조회 쿼리문 -->
+	 <select id="mypageCouponUsingList" resultType="Coupon" parameterType="string">
+	 	SELECT C.COUPON, C.DISCOUNT, C.STATUS, C.COUPON_NAME
+		  FROM COUPON C
+		  JOIN MEMBER M
+			ON C.MEMBER_NUM = M.MEMBER_NUM
+		 WHERE M.MEMBER_ID = #{memberId}
+		   AND C.STATUS = 'N'
+	 </select>
+	 
+	 <!-- 탈퇴 사유 쿼리문 -->
+	 <insert id="insertWithdrawal" parameterType="map">
+	 	INSERT INTO WITHDRAWAL(
+	 					  DRAWAL_NUM,
+	 					  MEMBER_NUM,
+	 					  DRAWAL_DATE,
+	 					  D_CONTENT)
+	 	VALUES(
+	 		   SEQ_DRAWAL.NEXTVAL,
+	 		   (SELECT MEMBER_NUM FROM MEMBER WHERE MEMBER_ID = #{memberId}),
+	 		   DEFAULT,
+	 		   #{dContent})
+	 </insert>
+	 
+	 <!-- 회원 탈퇴 쿼리문 -->
+	 <update id="mypageWithdrawal" parameterType="map">
+	 	UPDATE MEMBER
+	 	   SET STATUS = 'N'
+	 	 WHERE MEMBER_ID = #{memberId}
+	 	   AND MEMBER_PWD = #{memberPwd}
+	 </update>
+	 
+	 <!-- 리뷰 조회 쿼리문 -->
+	 <select id="mypageReviewList" resultType="reviewList" parameterType="string">
+	 SELECT ROW_NUMBER() OVER(ORDER BY R.CREATE_DATE DESC) AS REVIEWLIST_NUM,
+	        DECODE(B.D_NUM, NULL, '패키지상품', '셀프도시락') AS BASKET_TYPE,
+	        DECODE(B.D_NUM, NULL, P.PACKAGE_NAME, 
+                  (SELECT SIDE_NAME FROM SIDE WHERE SIDE_NUM = S.RICE)  || ', ' ||
+             	  (SELECT SIDE_NAME FROM SIDE WHERE SIDE_NUM = S.SOUP)  || ', ' ||
+             	  (SELECT SIDE_NAME FROM SIDE WHERE SIDE_NUM = S.SIDE1) || ', ' ||
+             	  (SELECT SIDE_NAME FROM SIDE WHERE SIDE_NUM = S.SIDE2) || ', ' ||
+             	  (SELECT SIDE_NAME FROM SIDE WHERE SIDE_NUM = S.SIDE3)) AS SIDE_NAME,
+	        R.ORDER_NUM,
+	        R.NOTICE_CONTENT,
+	        TO_CHAR(R.CREATE_DATE,'YYYY-MM-DD') AS CREATE_DATE,
+	        B.MEMBER_NUM
+	   FROM REVIEW R
+  LEFT JOIN ORDER_LIST O
+		 ON (R.ORDER_NUM = O.ORDER_NUM)
+  LEFT JOIN BASKET B
+		 ON (O.BASKET_NUM = B.BASKET_NUM)
+  LEFT JOIN SELFPRODUCT S
+		 ON (B.D_NUM = S.D_NUM)
+  LEFT JOIN PACKAGEPRODUCT P
+		 ON (B.PACKAGE_NUM = P.PACKAGE_NUM)
+	  WHERE B.MEMBER_NUM = (SELECT MEMBER_NUM FROM MEMBER WHERE MEMBER_ID = #{memberId})
+		AND R.STATUS = 'Y'
+   ORDER BY R.CREATE_DATE DESC
+	 </select>
+</mapper>

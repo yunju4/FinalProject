@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd"><!-- xml 파일의 유효성 체크를 위한 부분 -->
+  <mapper namespace="basket">
+  <!-- 셀프도시락 리스트 -->
+  	<select id="selfList" resultType="product" parameterType="int">
+  		SELECT BASKET_NUM, RICE||', '||SOUP||', '||SIDE1||', '||SIDE2||', '||SIDE3 P_NAME, COUNT, B.PRICE
+		FROM BASKET B,
+    		(SELECT D_NUM,
+            (SELECT SIDE_NAME FROM SIDE WHERE SIDE_NUM = S.RICE) AS RICE,
+            (SELECT SIDE_NAME FROM SIDE WHERE SIDE_NUM = S.SOUP) AS SOUP,
+            (SELECT SIDE_NAME FROM SIDE WHERE SIDE_NUM = S.SIDE1) AS SIDE1,
+            (SELECT SIDE_NAME FROM SIDE WHERE SIDE_NUM = S.SIDE2) AS SIDE2,
+            (SELECT SIDE_NAME FROM SIDE WHERE SIDE_NUM = S.SIDE3) AS SIDE3,
+        	PRICE
+       		FROM SELFPRODUCT S 
+       		WHERE STATUS='Y')D
+		WHERE B.D_NUM=D.D_NUM
+  		AND B.STATUS='Y'
+  		AND B.MEMBER_NUM=#{mNum}
+  		<!-- 쿼리문 바꿔야함 회원번호 조인해서 회원명으로 where, 도시락 또는 패키지 넘버 조인 해서 산 물품명 셀렉트-->
+  	</select>
+  	
+  	<!-- 패키지 도시락 리스튼 -->
+  	<select id="packageList" resultType="product" parameterType="int">
+	  	SELECT BASKET_NUM,PACKAGE_NAME P_NAME, B.COUNT, B.PRICE
+		FROM BASKET B,
+	     	 PACKAGEPRODUCT P
+		WHERE B.PACKAGE_NUM = P.PACKAGE_NUM
+	  	  AND B.STATUS='Y'
+	      AND B.MEMBER_NUM=#{mNum}
+  		<!-- 쿼리문 바꿔야함 회원번호 조인해서 회원명으로 where, 도시락 또는 패키지 넘버 조인 해서 산 물품명 셀렉트-->
+  	</select>
+  	
+  	<!-- 장바구니 삭제 -->
+  	<update id="deleteBasket" parameterType="int">
+  		UPDATE BASKET
+  		SET STATUS = 'N'
+  		WHERE BASKET_NUM = #{basketNum}
+  	</update>
+  	
+  	<!-- 쿠폰 조회 -->
+  	<select id="couponList" resultType="coupon" parameterType="int">
+  		SELECT *
+  		FROM COUPON
+  		WHERE MEMBER_NUM=#{mNum} 
+  		  AND STATUS='Y'
+  	</select>
+  	
+  	<!-- 주문하는 회원 조회 -->
+  	<select id="orderMember" resultType="member" parameterType="int">
+  		SELECT *
+  		FROM MEMBER
+  		WHERE MEMBER_NUM=#{mNum} 
+  		  AND STATUS='Y'
+  	</select>
+  	
+  	<!-- 카드조회 -->
+  	<select id="cardCheck" resultType="card" parameterType="map">
+  		SELECT *
+  		FROM CARD
+  		WHERE MEMBER_NUM=#{mNum} 
+  		  AND C_COM=#{cardCom}
+  		  AND CARD_PWD=#{cardPwd}
+  	</select>
+  	
+  	<!-- 결제 완료전 장바구니 변경사항 업데이트 -->
+  	<update id="countUpdate" parameterType="map">
+  		UPDATE BASKET
+  		SET COUNT = #{count}
+  		WHERE BASKET_NUM = #{bNum}
+  	</update>
+  	
+  	<!-- 팔린 도시락 카운트를 위란 셀도 셀렉트 -->
+  	<select id="paySeldoSelect" resultType="self" parameterType="int">
+  		SELECT RICE, SOUP, SIDE1, SIDE2, SIDE3, A.COUNT COUNT
+		FROM SELFPRODUCT
+		JOIN (SELECT D_NUM, COUNT
+      		  FROM ORDER_LIST B
+              JOIN BASKET USING(BASKET_NUM)
+              WHERE BASKET_NUM = #{bNum2}) A
+        USING(D_NUM)
+  	</select>
+  	<!-- 반찬 팔린양 카운트 업 -->
+  	<select id="sideCountUpdate" parameterType="map">
+  		UPDATE SIDE 
+		SET COUNT = COUNT+#{count}
+		WHERE SIDE_NUM = #{side}
+  	</select>
+  	
+  	<!-- countUp를 위한 패키지도시락 셀렉 -->
+  	<select id="payPackageSelect" resultType="package" parameterType="int">
+  		SELECT PACKAGE_NUM, A.COUNT COUNT
+		FROM PACKAGEPRODUCT
+		JOIN (SELECT PACKAGE_NUM, COUNT
+     		  FROM ORDER_LIST B
+     		  JOIN BASKET USING(BASKET_NUM)
+     		  WHERE BASKET_NUM = #{bNum2})A
+ 		USING (PACKAGE_NUM)
+  	</select>
+  	
+  	<!-- 팔린 패키지 도시락 카운트 업데이트 -->
+  	<update id="packageCountUpdate" parameterType="map">
+  		UPDATE PACKAGEPRODUCT
+		SET COUNT=COUNT+#{count}
+		WHERE PACKAGE_NUM = #{package1}
+  	</update>
+  	
+  	<!-- 결제 완료 전 쿠폰 변경사항 업데이트 -->
+  	<update id="couponUpdate" parameterType="int">
+  		UPDATE COUPON
+  		SET STATUS = 'N'
+  		WHERE COUPON = #{cName}
+  	</update>
+  	
+  	<!-- 주문페이지 가기 전 장바구니 N으로 -->
+  	<update id="basketUpdate" parameterType="int">
+  		UPDATE BASKET
+  		SET STATUS = 'N'
+  		WHERE BASKET_NUM = #{bNumi}
+  	</update>
+  	
+  	<!-- 주문번호로 오더리스트 등록 -->
+  	<insert id="orderInsert" parameterType="int">
+	INSERT INTO ORDER_LIST	
+	VALUES(	SEQ_ORD.NEXTVAL,
+			${bNumi},
+			DEFAULT,
+			DEFAULT,
+			DEFAULT ) 	
+  	</insert>
+  	
+  </mapper>

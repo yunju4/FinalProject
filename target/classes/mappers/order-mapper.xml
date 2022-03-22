@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> <!-- xml 파일의 유효성 체크를 위한 부분 -->
+<mapper namespace="order">
+
+	<!-- 문의사항 목록 조회 -->
+	<!-- 
+	<select id="selectList" resultType="order">
+		SELECT ORDER_NUM
+			, BASKET_NUM
+			, PARCEL
+			, TO_CHAR(ORDER_DATE, 'YYYY-MM-DD HH24:MI') AS ORDER_DATE
+			, STATUS
+		FROM ORDER_LIST
+	</select>
+	-->
+	<select id="selectList" resultType="orderList">
+		SELECT 
+		        ROWNUM AS ORDERLIST_NUM,
+		        DECODE(A.D_NUM, NULL, '패키지상품', '셀프도시락') AS BASKET_TYPE,
+		        DECODE(A.D_NUM, NULL, C.PACKAGE_NAME, 
+		        (SELECT SIDE_NAME FROM SIDE WHERE SIDE_NUM = B.RICE)  || ', ' ||
+		        (SELECT SIDE_NAME FROM SIDE WHERE SIDE_NUM = B.SOUP)  || ', ' ||
+		        (SELECT SIDE_NAME FROM SIDE WHERE SIDE_NUM = B.SIDE1) || ', ' ||
+		        (SELECT SIDE_NAME FROM SIDE WHERE SIDE_NUM = B.SIDE2) || ', ' ||
+		        (SELECT SIDE_NAME FROM SIDE WHERE SIDE_NUM = B.SIDE3) 
+		        ) AS SIDE_NAME ,
+		        A.PRICE,
+		        A.COUNT,
+		        TO_CHAR(O.ORDER_DATE,'YYYY-MM-DD') AS ORDER_DATE,
+		        O.ORDER_NUM,
+		        MEMBER_ID,
+		        O.PARCEL,
+		        O.STATUS
+		   FROM ORDER_LIST O
+		  INNER JOIN BASKET A
+		     ON (O.BASKET_NUM = A.BASKET_NUM)
+		LEFT JOIN SELFPRODUCT B
+		     ON (A.D_NUM = B.D_NUM)
+		LEFT JOIN PACKAGEPRODUCT C
+		     ON (A.PACKAGE_NUM = C.PACKAGE_NUM)
+		LEFT JOIN MEMBER M 
+     		 ON (A.MEMBER_NUM = M.MEMBER_NUM)
+		ORDER BY O.ORDER_DATE DESC
+	</select>
+	
+	<!-- 주문 취소 -->
+	<update id="orderDelete" parameterType="int">
+		UPDATE ORDER_LIST
+		SET STATUS = 'N'
+		WHERE ORDER_NUM = ${ orderNum }
+	</update>
+	
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
